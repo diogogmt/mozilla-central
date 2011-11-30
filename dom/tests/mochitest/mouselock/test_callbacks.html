@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+<!--
+https://bugzilla.mozilla.org/show_bug.cgi?id=92264
+-->
+<head>
+  <title>Test for Bug 92264</title>
+  <script src="/tests/SimpleTest/SimpleTest.js"></script>
+	<script src="/tests/SimpleTest/EventUtils.js"></script>
+  <link rel="stylesheet" type="text/css" href="/tests/SimpleTest/test.css"/>
+</head>
+<body>
+	<a target="_blank" href="https://bugzilla.mozilla.org/show_bug.cgi?id=633602">Mozilla Bug 633602</a>
+
+	<p id="display"></p>
+
+	<div id="content" style="display: none">
+	</div>
+	
+	<canvas id="canvas" width="150" height="150"></canvas>
+
+	<pre id="test">
+		<script>
+
+			SimpleTest.waitForExplicitFinish();
+
+			var pointer = navigator.pointer;
+			var canvas = document.getElementById("canvas");
+
+			SpecialPowers.setBoolPref("full-screen-api.allow-trusted-requests-only", false);
+
+			var successCallback = function () {
+				// Success callback shoud fire when mouse is locked
+				is(pointer.islocked(), true, "Mouse should be locked if success callback is fired");
+				document.mozCancelFullScreen();
+	  		SimpleTest.finish();
+			};
+
+			var failureCallback = function () {
+				// Success callback shoud fire when mouse is locked
+				is(pointer.islocked(), false, "Mouse should be unlocked if failure callback is fired");
+			};
+
+
+			document.addEventListener("mozfullscreenchange", function (e) {     
+      	if (document.mozFullScreen) {
+        	if (document.mozFullScreenElement === canvas) {
+						// Lock the mouse to an element that it is in fullscreen mode, success callback should fire
+						pointer.lock(canvas, successCallback, failureCallback);			
+        	}
+				}
+    	}, false);
+
+			// Lock the mouse to an element that it is not in fullscreen mode, failure callback should fire
+			pointer.lock(canvas, successCallback, failureCallback);			
+
+			canvas.mozRequestFullScreen();
+
+		</script>
+	</pre>
+</body>
+</html>

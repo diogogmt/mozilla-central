@@ -47,8 +47,11 @@ include $(DEPTH)/config/autoconf.mk
 include $(topsrcdir)/config/rules.mk
 
 _TEST_FILES	= \
-    navigatorPointer.html \
+    test_navigatorPointer.html \
     test_fullscreen.html \
+    test_callbacks.html \
+    test_mouselocklost.html \
+    test_removeElementFromDOM.html \
     $(NULL)
 
 libs::	$(_TEST_FILES)
