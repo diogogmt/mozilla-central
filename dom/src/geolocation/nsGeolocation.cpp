@@ -105,9 +105,11 @@ public:
   RequestPromptEvent(nsGeolocationRequest* request)
     : mRequest(request)
   {
+		printf("\nRequestPromptEvent::RequestPromptEvent\n");
   }
 
   NS_IMETHOD Run() {
+		printf("\nRequestPromptEvent::Run()\n");
     nsCOMPtr<nsIContentPermissionPrompt> prompt = do_GetService(NS_CONTENT_PERMISSION_PROMPT_CONTRACTID);
     if (prompt) {
       prompt->Prompt(mRequest);
@@ -126,9 +128,11 @@ public:
     : mAllow(allow),
       mRequest(request)
   {
+		printf("\nRequestAllowEvent::RequestAllowEvent()\n");
   }
 
   NS_IMETHOD Run() {
+		printf("\nRequestAllowEvent::Run()\n");
     if (mAllow)
       mRequest->Allow();
     else
@@ -154,9 +158,11 @@ public:
       mRequest(aRequest),
       mLocator(aLocator)
   {
+		printf("\nRequestSendLocationEvent::RequestSendLocationEvent()\n");
   }
 
   NS_IMETHOD Run() {
+		printf("\nRequestSendLocationEvent::Run()\n");
     mRequest->SendLocation(mPosition);
     if (mLocator)
       mLocator->RemoveRequest(mRequest);
@@ -202,14 +208,19 @@ NS_IMPL_THREADSAFE_RELEASE(nsDOMGeoPositionError)
 nsDOMGeoPositionError::nsDOMGeoPositionError(PRInt16 aCode)
   : mCode(aCode)
 {
+	printf("\nnsDOMGeoPositionError::nsDOMGeoPositionError()\n");
 }
 
-nsDOMGeoPositionError::~nsDOMGeoPositionError(){}
+nsDOMGeoPositionError::~nsDOMGeoPositionError()
+{
+	printf("\nnsDOMGeoPositionError::~nsDOMGeoPositionError()\n");
+}
 
 
 NS_IMETHODIMP
 nsDOMGeoPositionError::GetCode(PRInt16 *aCode)
 {
+	printf("\nnsDOMGeoPositionError::GetCode()\n");
   NS_ENSURE_ARG_POINTER(aCode);
   *aCode = mCode;
   return NS_OK;
@@ -218,6 +229,7 @@ nsDOMGeoPositionError::GetCode(PRInt16 *aCode)
 void
 nsDOMGeoPositionError::NotifyCallback(nsIDOMGeoPositionErrorCallback* aCallback)
 {
+	printf("\nnsDOMGeoPositionError::NotifyCallback()\n");
   if (!aCallback)
     return;
   
@@ -249,15 +261,18 @@ nsGeolocationRequest::nsGeolocationRequest(nsGeolocation* aLocator,
     mOptions(aOptions),
     mLocator(aLocator)
 {
+	printf("\nnsGeolocationRequest::nsGeolocationRequest()\n");
 }
 
 nsGeolocationRequest::~nsGeolocationRequest()
 {
+	printf("\nnsGeolocationRequest::~nsGeolocationRequest()\n");
 }
 
 nsresult
 nsGeolocationRequest::Init()
 {
+	printf("\nnsGeolocationRequest::Init()\n");
   // This method is called before the user has given permission for this request.
   return NS_OK;
 }
@@ -277,6 +292,7 @@ NS_IMPL_CYCLE_COLLECTION_4(nsGeolocationRequest, mCallback, mErrorCallback, mOpt
 void
 nsGeolocationRequest::NotifyError(PRInt16 errorCode)
 {
+	printf("\nnsGeolocationRequest::NotifyError()\n");
   nsRefPtr<nsDOMGeoPositionError> positionError = new nsDOMGeoPositionError(errorCode);
   if (!positionError)
     return;
@@ -288,6 +304,7 @@ nsGeolocationRequest::NotifyError(PRInt16 errorCode)
 NS_IMETHODIMP
 nsGeolocationRequest::Notify(nsITimer* aTimer)
 {
+	printf("\nnsGeolocationRequest::Notify()\n");
   // If we haven't gotten an answer from the geolocation
   // provider yet, cancel the request.  Same logic as
   // ::Cancel, just a different error
@@ -303,6 +320,7 @@ nsGeolocationRequest::Notify(nsITimer* aTimer)
 NS_IMETHODIMP
 nsGeolocationRequest::GetUri(nsIURI * *aRequestingURI)
 {
+	printf("\nnsGeolocationRequest::GetUri()\n");
   NS_ENSURE_ARG_POINTER(aRequestingURI);
 
   nsCOMPtr<nsIURI> uri = mLocator->GetURI();
@@ -314,6 +332,7 @@ nsGeolocationRequest::GetUri(nsIURI * *aRequestingURI)
 NS_IMETHODIMP
 nsGeolocationRequest::GetType(nsACString & aType)
 {
+	printf("\nnsGeolocationRequest::GetType()\n");
   aType = "geolocation";
   return NS_OK;
 }
@@ -321,6 +340,7 @@ nsGeolocationRequest::GetType(nsACString & aType)
 NS_IMETHODIMP
 nsGeolocationRequest::GetWindow(nsIDOMWindow * *aRequestingWindow)
 {
+	printf("\nnsGeolocationRequest::GetWindow()\n");
   NS_ENSURE_ARG_POINTER(aRequestingWindow);
 
   nsCOMPtr<nsIDOMWindow> window = do_QueryReferent(mLocator->GetOwner());
@@ -332,6 +352,7 @@ nsGeolocationRequest::GetWindow(nsIDOMWindow * *aRequestingWindow)
 NS_IMETHODIMP
 nsGeolocationRequest::GetElement(nsIDOMElement * *aRequestingElement)
 {
+	printf("\nnsGeolocationRequest::GetElement()\n");
   NS_ENSURE_ARG_POINTER(aRequestingElement);
   *aRequestingElement = nsnull;
   return NS_OK;
@@ -340,6 +361,7 @@ nsGeolocationRequest::GetElement(nsIDOMElement * *aRequestingElement)
 NS_IMETHODIMP
 nsGeolocationRequest::Cancel()
 {
+	printf("\nnsGeolocationRequest::Cancel()\n");
   // remove ourselves from the locators callback lists.
   mLocator->RemoveRequest(this);
 
@@ -350,6 +372,7 @@ nsGeolocationRequest::Cancel()
 NS_IMETHODIMP
 nsGeolocationRequest::Allow()
 {
+	printf("\nnsGeolocationRequest::Allow()\n");
   nsRefPtr<nsGeolocationService> geoService = nsGeolocationService::GetInstance();
 
   // Kick off the geo device, if it isn't already running
@@ -392,6 +415,7 @@ nsGeolocationRequest::Allow()
      nsCOMPtr<nsIRunnable> ev =
          new RequestSendLocationEvent(lastPosition, this,
                                       mIsWatchPositionRequest ? nsnull : mLocator);
+		printf("\nnsGeolocationRequest::Allow - Dispatch to Main Thread\n");
     NS_DispatchToMainThread(ev);
   }
 
@@ -404,6 +428,7 @@ nsGeolocationRequest::Allow()
 void
 nsGeolocationRequest::SetTimeoutTimer()
 {
+	printf("\nnsGeolocationRequest::SetTimeoutTimer()\n");
   if (mTimeoutTimer) {
     mTimeoutTimer->Cancel();
     mTimeoutTimer = nsnull;
@@ -422,6 +447,7 @@ nsGeolocationRequest::SetTimeoutTimer()
 void
 nsGeolocationRequest::MarkCleared()
 {
+	printf("\nnsGeolocationRequest::MarkCleared()\n");
   if (mTimeoutTimer) {
     mTimeoutTimer->Cancel();
     mTimeoutTimer = nsnull;
@@ -432,6 +458,7 @@ nsGeolocationRequest::MarkCleared()
 void
 nsGeolocationRequest::SendLocation(nsIDOMGeoPosition* aPosition)
 {
+	printf("\nnsGeolocationRequest::SendLocation()\n");
   if (mCleared || !mAllowed)
     return;
 
@@ -464,11 +491,13 @@ nsGeolocationRequest::SendLocation(nsIDOMGeoPosition* aPosition)
 bool
 nsGeolocationRequest::Update(nsIDOMGeoPosition* aPosition)
 {
+	printf("\nnsGeolocationRequest::Update()\n");
   if (!mAllowed)
     return false;
   nsCOMPtr<nsIRunnable> ev  =
       new RequestSendLocationEvent(aPosition, this,
                                    mIsWatchPositionRequest ? nsnull : mLocator);
+	printf("\nnsGeolocationRequest::Update - Dispatch to Main Thread\n");
   NS_DispatchToMainThread(ev);
   return true;
 }
@@ -476,6 +505,7 @@ nsGeolocationRequest::Update(nsIDOMGeoPosition* aPosition)
 void
 nsGeolocationRequest::Shutdown()
 {
+	printf("\nnsGeolocationRequest::Shutdown()\n");
   if (mTimeoutTimer) {
     mTimeoutTimer->Cancel();
     mTimeoutTimer = nsnull;
@@ -487,6 +517,7 @@ nsGeolocationRequest::Shutdown()
 
 bool nsGeolocationRequest::Recv__delete__(const bool& allow)
 {
+	printf("\nnsGeolocationRequest::Recv__delete__()\n");
   if (allow)
     (void) Allow();
   else
@@ -512,6 +543,7 @@ static bool sGeoIgnoreLocationFilter = false;
 static int
 GeoEnabledChangedCallback(const char *aPrefName, void *aClosure)
 {
+	printf("\nGeoEnabledChangedCallback\n");
   sGeoEnabled = Preferences::GetBool("geo.enabled", true);
   return 0;
 }
@@ -519,6 +551,7 @@ GeoEnabledChangedCallback(const char *aPrefName, void *aClosure)
 static int
 GeoIgnoreLocationFilterChangedCallback(const char *aPrefName, void *aClosure)
 {
+	printf("\nGeoIgnoreLocationFilterChangeCallback\n");
   sGeoIgnoreLocationFilter =
     Preferences::GetBool("geo.ignore.location_filter", true);
   return 0;
@@ -527,6 +560,7 @@ GeoIgnoreLocationFilterChangedCallback(const char *aPrefName, void *aClosure)
 
 nsresult nsGeolocationService::Init()
 {
+	printf("\nnsGeolocationService::Init\n");
   mTimeout = Preferences::GetInt("geo.timeout", 6000);
 
   Preferences::RegisterCallback(GeoIgnoreLocationFilterChangedCallback,
@@ -605,6 +639,7 @@ nsresult nsGeolocationService::Init()
 
 nsGeolocationService::~nsGeolocationService()
 {
+	printf("\nnsGeolocationService::~nsGeolocationService\n");
 }
 
 NS_IMETHODIMP
@@ -612,6 +647,7 @@ nsGeolocationService::Observe(nsISupports* aSubject,
                               const char* aTopic,
                               const PRUnichar* aData)
 {
+	printf("\n\n");
   if (!strcmp("quit-application", aTopic))
   {
     nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
@@ -649,6 +685,7 @@ nsGeolocationService::Observe(nsISupports* aSubject,
 NS_IMETHODIMP
 nsGeolocationService::Update(nsIDOMGeoPosition *aSomewhere)
 {
+	printf("\nnsGeolocationService::Update\n");
   SetCachedPosition(aSomewhere);
 
   for (PRUint32 i = 0; i< mGeolocators.Length(); i++)
@@ -659,18 +696,21 @@ nsGeolocationService::Update(nsIDOMGeoPosition *aSomewhere)
 void
 nsGeolocationService::SetCachedPosition(nsIDOMGeoPosition* aPosition)
 {
+	printf("\nnsGeolocationService::SetCachedPosition\n");
   mLastPosition = aPosition;
 }
 
 nsIDOMGeoPosition*
 nsGeolocationService::GetCachedPosition()
 {
+	printf("\nnsGeolocationService::GetCachedPosition\n");
   return mLastPosition;
 }
 
 nsresult
 nsGeolocationService::StartDevice()
 {
+	printf("\nnsGeolocationService::StartDevice\n");
   if (!sGeoEnabled)
     return NS_ERROR_NOT_AVAILABLE;
 
@@ -704,6 +744,7 @@ nsGeolocationService::StartDevice()
 void
 nsGeolocationService::SetDisconnectTimer()
 {
+	printf("\nnsGeolocationService::SetDisconnectTimer\n");
   if (!mDisconnectTimer)
     mDisconnectTimer = do_CreateInstance("@mozilla.org/timer;1");
   else
@@ -717,6 +758,7 @@ nsGeolocationService::SetDisconnectTimer()
 void 
 nsGeolocationService::StopDevice()
 {
+	printf("\nnsGeolocationService::StopDevice\n");
   if(mDisconnectTimer) {
     mDisconnectTimer->Cancel();
     mDisconnectTimer = nsnull;
@@ -745,6 +787,7 @@ nsGeolocationService* nsGeolocationService::gService = nsnull;
 nsGeolocationService*
 nsGeolocationService::GetInstance()
 {
+	printf("\nnsGeolocationService::GetInstance\n");
   if (!nsGeolocationService::gService) {
     nsGeolocationService::gService = new nsGeolocationService();
     NS_ASSERTION(nsGeolocationService::gService, "null nsGeolocationService.");
@@ -762,6 +805,7 @@ nsGeolocationService::GetInstance()
 nsGeolocationService*
 nsGeolocationService::GetGeolocationService()
 {
+	printf("\nnsGeolocationService::GetGetolocationService\n");
   nsGeolocationService* inst = nsGeolocationService::GetInstance();
   NS_IF_ADDREF(inst);
   return inst;
@@ -770,12 +814,14 @@ nsGeolocationService::GetGeolocationService()
 void
 nsGeolocationService::AddLocator(nsGeolocation* aLocator)
 {
+	printf("\nnsGeolocationService::AddLocator\n");
   mGeolocators.AppendElement(aLocator);
 }
 
 void
 nsGeolocationService::RemoveLocator(nsGeolocation* aLocator)
 {
+	printf("\nnsGeolocationService::RemoveLocator\n");
   mGeolocators.RemoveElement(aLocator);
 }
 
@@ -811,10 +857,12 @@ NS_IMPL_CYCLE_COLLECTION_TRAVERSE_END
 
 nsGeolocation::nsGeolocation() 
 {
+	printf("\nnsGeolocation::nsGeolocation\n");
 }
 
 nsGeolocation::~nsGeolocation()
 {
+	printf("\nnsGeolocation::~nsGeolocation\n");
   if (mService)
     Shutdown();
 }
@@ -822,6 +870,7 @@ nsGeolocation::~nsGeolocation()
 nsresult
 nsGeolocation::Init(nsIDOMWindow* aContentDom)
 {
+	printf("\nnsGeolocation::Init\n");
   // Remember the window
   if (aContentDom) {
     nsCOMPtr<nsPIDOMWindow> window = do_QueryInterface(aContentDom);
@@ -858,6 +907,7 @@ nsGeolocation::Init(nsIDOMWindow* aContentDom)
 void
 nsGeolocation::Shutdown()
 {
+	printf("\nnsGeolocation::Shutdown\n");
   // Shutdown and release all callbacks
   for (PRUint32 i = 0; i< mPendingCallbacks.Length(); i++)
     mPendingCallbacks[i]->Shutdown();
@@ -877,6 +927,7 @@ nsGeolocation::Shutdown()
 bool
 nsGeolocation::HasActiveCallbacks()
 {
+	printf("\nnsGeolocation::HasActiveCallbacks\n");
   for (PRUint32 i = 0; i < mWatchingCallbacks.Length(); i++)
     if (mWatchingCallbacks[i]->IsActive())
       return true;
@@ -887,6 +938,7 @@ nsGeolocation::HasActiveCallbacks()
 void
 nsGeolocation::RemoveRequest(nsGeolocationRequest* aRequest)
 {
+	printf("\nnsGeolocation::RemoveRequest\n");
   mPendingCallbacks.RemoveElement(aRequest);
 
   // if it is in the mWatchingCallbacks, we can't do much
@@ -901,6 +953,7 @@ nsGeolocation::RemoveRequest(nsGeolocationRequest* aRequest)
 void
 nsGeolocation::Update(nsIDOMGeoPosition *aSomewhere)
 {
+	printf("\nnsGeolocation::Update\n");
   if (!WindowOwnerStillExists())
     return Shutdown();
 
@@ -920,6 +973,7 @@ nsGeolocation::GetCurrentPosition(nsIDOMGeoPositionCallback *callback,
                                   nsIDOMGeoPositionErrorCallback *errorCallback,
                                   nsIDOMGeoPositionOptions *options)
 {
+	printf("\nnsGeolocation::GetCurrentPosition\n");
   NS_ENSURE_ARG_POINTER(callback);
 
   if (!sGeoEnabled)
@@ -928,6 +982,7 @@ nsGeolocation::GetCurrentPosition(nsIDOMGeoPositionCallback *callback,
   if (mPendingCallbacks.Length() > MAX_GEO_REQUESTS_PER_WINDOW)
     return NS_ERROR_NOT_AVAILABLE;
 
+	printf("\nCreating nsGeolocationRequest obj\n");
   nsRefPtr<nsGeolocationRequest> request = new nsGeolocationRequest(this,
 								    callback,
 								    errorCallback,
@@ -952,7 +1007,10 @@ nsGeolocation::GetCurrentPosition(nsIDOMGeoPositionCallback *callback,
 
   mPendingCallbacks.AppendElement(request);
 
+	printf("\nCreating new RequestAllowEvent\n");
   nsCOMPtr<nsIRunnable> ev = new RequestAllowEvent(true, request);
+	printf("\nDispatching the RequestAllowEvent\n");
+	printf("\nnsGeolocation::GetCurPosition - Dispatch to Main Thread\n");
   NS_DispatchToMainThread(ev);
 
   return NS_OK;
@@ -964,6 +1022,7 @@ nsGeolocation::WatchPosition(nsIDOMGeoPositionCallback *callback,
                              nsIDOMGeoPositionOptions *options,
                              PRInt32 *_retval NS_OUTPARAM)
 {
+	printf("\nnsGeolocation::WatchPosition\n");
 
   NS_ENSURE_ARG_POINTER(callback);
 
@@ -1010,6 +1069,7 @@ nsGeolocation::WatchPosition(nsIDOMGeoPositionCallback *callback,
 NS_IMETHODIMP
 nsGeolocation::ClearWatch(PRInt32 aWatchId)
 {
+	printf("\nnsGeolocation::ClearWatch\n");
   PRUint32 count = mWatchingCallbacks.Length();
   if (aWatchId < 0 || count == 0 || PRUint32(aWatchId) >= count)
     return NS_OK;
@@ -1021,6 +1081,7 @@ nsGeolocation::ClearWatch(PRInt32 aWatchId)
 bool
 nsGeolocation::WindowOwnerStillExists()
 {
+	printf("\nnsGeolocation::WindowOwnerStillExists\n");
   // an owner was never set when nsGeolocation
   // was created, which means that this object
   // is being used without a window.
@@ -1047,10 +1108,12 @@ nsGeolocation::WindowOwnerStillExists()
 bool
 nsGeolocation::RegisterRequestWithPrompt(nsGeolocationRequest* request)
 {
+	printf("\nnsGeolocation::RegisterRequestWithPrompt\n");
   if (Preferences::GetBool("geo.prompt.testing", false)) {
     nsCOMPtr<nsIRunnable> ev =
         new RequestAllowEvent(Preferences::GetBool("geo.prompt.testing.allow",
                                                    false), request);
+	printf("\nnsGeolocation::RegisterRequestWithPrompt - Dispatch to Main Thread\n");
     NS_DispatchToMainThread(ev);
     return true;
   }
@@ -1078,6 +1141,7 @@ nsGeolocation::RegisterRequestWithPrompt(nsGeolocationRequest* request)
   }
 
   nsCOMPtr<nsIRunnable> ev  = new RequestPromptEvent(request);
+	printf("\nnsGeolocation::RegisterRequestWithPrompt - Dispatch to Main Thread\n");
   NS_DispatchToMainThread(ev);
   return true;
 }

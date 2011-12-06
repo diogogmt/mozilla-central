@@ -8520,6 +8520,7 @@ SetWindowFullScreen(nsIDocument* aDoc, bool aValue)
 void
 nsDocument::CancelFullScreen()
 {
+  printf("\nnsDocument::CancelFullScreen\n");
   NS_ASSERTION(!IsFullScreenDoc() || sFullScreenDoc != nsnull,
                "Should have a full-screen doc when full-screen!");
 
@@ -8619,6 +8620,7 @@ public:
 void
 nsDocument::AsyncRequestFullScreen(Element* aElement)
 {
+  printf("\nnsDocument::AsyncRequestFullScreen\n");
   NS_ASSERTION(aElement,
     "Must pass non-null element to nsDocument::AsyncRequestFullScreen");
   if (!aElement) {
@@ -8652,6 +8654,7 @@ LogFullScreenDenied(bool aLogFailure, const char* aMessage, nsIDocument* aDoc)
 void
 nsDocument::RequestFullScreen(Element* aElement, bool aWasCallerChrome)
 {
+  printf("\nnsDocument::RequestFullScreen\n");
   NS_ASSERTION(aElement,
     "Must pass non-null element to nsDocument::RequestFullScreen");
   if (!aElement) {

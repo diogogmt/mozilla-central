@@ -90,6 +90,7 @@ nsDOMMouseLockable::Init(nsIDOMWindow* aContentWindow)
 
 NS_IMETHODIMP nsDOMMouseLockable::Unlock()
 {
+  printf("\nnsDOMMouseLockable::Unlock\n");
   if (!mIsLocked) {
     return NS_OK;
   }
@@ -184,6 +185,7 @@ NS_IMETHODIMP nsDOMMouseLockable::Lock(nsIDOMElement* aTarget,
                                        nsIDOMMouseLockableSuccessCallback* aSuccessCallback,
                                        nsIDOMMouseLockableFailureCallback* aFailureCallback)
 {
+  printf("\nnsDOMMouseLockable::Lock\n");
   nsRefPtr<nsMouseLockableRequest> request =
     new nsMouseLockableRequest(aSuccessCallback, aFailureCallback);
   nsCOMPtr<nsIRunnable> ev;

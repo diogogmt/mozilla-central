@@ -84,6 +84,9 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/LookAndFeel.h"
 
+#include "nsDOMMouseLockable.h"
+#include "Navigator.h"
+
 #ifdef MOZ_XUL
 #include "nsIDOMXULTextboxElement.h"
 #include "nsIDOMXULMenuListElement.h"
@@ -97,8 +100,8 @@ using namespace mozilla;
 using namespace mozilla::dom;
 using namespace mozilla::widget;
 
-//#define DEBUG_FOCUS 1
-//#define DEBUG_FOCUS_NAVIGATION 1
+#define DEBUG_FOCUS 1
+#define DEBUG_FOCUS_NAVIGATION 1
 #define PRINTTAGF(format, content)                     \
   {                                                    \
     nsAutoString tag(NS_LITERAL_STRING("(none)"));     \
@@ -1088,6 +1091,7 @@ void
 nsFocusManager::SetFocusInner(nsIContent* aNewContent, PRInt32 aFlags,
                               bool aFocusChanged, bool aAdjustWidget)
 {
+	printf("nsFocusManager::SetFocusInner\n");
   // if the element is not focusable, just return and leave the focus as is
   nsCOMPtr<nsIContent> contentToFocus = CheckIfFocusable(aNewContent, aFlags);
   if (!contentToFocus)
@@ -1182,6 +1186,25 @@ nsFocusManager::SetFocusInner(nsIContent* aNewContent, PRInt32 aFlags,
   printf(" In Active Window: %d In Focused Window: %d\n",
          isElementInActiveWindow, isElementInFocusedWindow);
 #endif
+
+	if (!isElementInFocusedWindow) {
+		printf("SetFocusInner::Getting Navigator...\n");
+
+		if (mFocusedWindow) {
+			printf("has mFocusedWindow...\n");
+			nsCOMPtr<nsIDOMNavigator> navigator;
+  		mFocusedWindow->GetNavigator(getter_AddRefs(navigator));
+  		if (navigator) {
+				printf("has navigator...\n");
+  			nsCOMPtr<nsIDOMMouseLockable> pointer;
+    		navigator->GetPointer(getter_AddRefs(pointer));
+    		if (pointer) {
+					printf("has pointer...\n");
+    			pointer->Unlock();
+    		}
+ 			}
+		}
+	}
 
   // if the FLAG_NOSWITCHFRAME flag is used, only allow the focus to be
   // shifted away from the current element if the new shell to focus is
@@ -1477,6 +1500,7 @@ nsFocusManager::Blur(nsPIDOMWindow* aWindowToClear,
                      bool aIsLeavingDocument,
                      bool aAdjustWidgets)
 {
+	printf("nsFocusManager::Blur\n");
   // hold a reference to the focused content, which may be null
   nsCOMPtr<nsIContent> content = mFocusedContent;
   if (content) {
@@ -1649,6 +1673,7 @@ nsFocusManager::Focus(nsPIDOMWindow* aWindow,
                       bool aWindowRaised,
                       bool aAdjustWidgets)
 {
+	printf("nsFocusManager::Focus\n");
   if (!aWindow)
     return;
 
@@ -1699,6 +1724,23 @@ nsFocusManager::Focus(nsPIDOMWindow* aWindow,
 #endif
 
   if (aIsNewDocument) {
+
+		//printf("Focus::Getting Navigator...\n");
+
+		if (mFocusedWindow) {
+			//printf("has mFocusedWindow...\n");
+			nsCOMPtr<nsIDOMNavigator> navigator;
+  		mFocusedWindow->GetNavigator(getter_AddRefs(navigator));
+  		if (navigator) {
+				//printf("has navigator...\n");
+  			nsCOMPtr<nsIDOMMouseLockable> pointer;
+    		navigator->GetPointer(getter_AddRefs(pointer));
+    		if (pointer) {
+					//printf("has pointer...\n");
+    			pointer->Unlock();
+    		}
+ 			}
+		}
     // if this is a new document, update the parent chain of frames so that
     // focus can be traversed from the top level down to the newly focused
     // window.
