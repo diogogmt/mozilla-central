@@ -8437,6 +8437,7 @@ nsIDocument::SizeOf() const
 static void
 DispatchFullScreenChange(nsIDocument* aTarget)
 {
+  printf("\nDispatchFullScreenChange\n");
   nsRefPtr<nsPLDOMEvent> e =
     new nsPLDOMEvent(aTarget,
                      NS_LITERAL_STRING("mozfullscreenchange"),
@@ -8448,6 +8449,7 @@ DispatchFullScreenChange(nsIDocument* aTarget)
 NS_IMETHODIMP
 nsDocument::MozCancelFullScreen()
 {
+  printf("\nnsDocument::MozCancelFullScreen\n");
   if (!nsContentUtils::IsRequestFullScreenAllowed()) {
     return NS_OK;
   }
@@ -8463,10 +8465,14 @@ nsDocument::MozCancelFullScreen()
 class nsSetWindowFullScreen : public nsRunnable {
 public:
   nsSetWindowFullScreen(nsIDocument* aDoc, bool aValue)
-    : mDoc(aDoc), mValue(aValue) {}
+    : mDoc(aDoc), mValue(aValue) 
+  {
+    printf("\nnsSetWIndowFullScreen::nsSetWindowFullScreen\n");
+  }
 
   NS_IMETHOD Run()
   {
+    printf("\nnsSetWIndowFullScreen::Run\n");
     if (mDoc->GetWindow()) {
       mDoc->GetWindow()->SetFullScreen(mValue);
     }
@@ -8481,6 +8487,7 @@ private:
 static void
 SetWindowFullScreen(nsIDocument* aDoc, bool aValue)
 {
+  printf("\nstatic SetWIndowFullScreen\n");
   nsContentUtils::AddScriptRunner(new nsSetWindowFullScreen(aDoc, aValue));
 }
 
@@ -8488,6 +8495,7 @@ class nsCallExitFullScreen : public nsRunnable {
 public:
   NS_IMETHOD Run()
   {
+    printf("\nnsCallExitFullScreen::Run\n");
     nsDocument::ExitFullScreen();
     return NS_OK;
   }
@@ -8497,6 +8505,7 @@ public:
 void
 nsIDocument::ExitFullScreen(bool aRunAsync)
 {
+  printf("\nnsIDocument::ExitFullScreen\n");
   if (aRunAsync) {
     NS_DispatchToCurrentThread(new nsCallExitFullScreen());
     return;
@@ -8506,6 +8515,7 @@ nsIDocument::ExitFullScreen(bool aRunAsync)
 
 static bool
 ResetFullScreen(nsIDocument* aDocument, void* aData) {
+  printf("\nstatic ResetFullScreen\n");
   if (aDocument->IsFullScreenDoc()) {
     static_cast<nsDocument*>(aDocument)->ClearFullScreenStack();
     NS_ASSERTION(!aDocument->IsFullScreenDoc(), "Should reset full-screen");
@@ -8520,6 +8530,7 @@ ResetFullScreen(nsIDocument* aDocument, void* aData) {
 void
 nsDocument::MaybeUnlockMouse(nsIDocument* aDocument)
 {
+  printf("\nnsDcument::MaybeUnlockMouse\n");
   if (!aDocument) {
     return;
   }
@@ -8545,6 +8556,7 @@ nsDocument::MaybeUnlockMouse(nsIDocument* aDocument)
 void
 nsDocument::ExitFullScreen()
 {
+  printf("\nnsDocument::ExitFullScreen\n");
   // Clear full-screen stacks in all descendant documents.
   nsCOMPtr<nsIDocument> root(do_QueryReferent(sFullScreenRootDoc));
   if (!root) {
@@ -8590,6 +8602,7 @@ nsDocument::ExitFullScreen()
 void
 nsDocument::RestorePreviousFullScreenState()
 {
+  printf("\nnsDocument::RestorePreviousFullScreenState\n");
   NS_ASSERTION(!IsFullScreenDoc() || sFullScreenDoc != nsnull,
                "Should have a full-screen doc when full-screen!");
 
@@ -8686,10 +8699,12 @@ public:
       mDoc(aElement->OwnerDoc()),
       mWasCallerChrome(nsContentUtils::IsCallerChrome())
   {
+    printf("\nnsCallRequestFullScreen::nsCallRequestFullScreen\n");
   }
 
   NS_IMETHOD Run()
   {
+    printf("\nnsCallRequestFullScreen::Run\n");
     nsDocument* doc = static_cast<nsDocument*>(mDoc.get());
     doc->RequestFullScreen(mElement, mWasCallerChrome);
     return NS_OK;
@@ -8703,6 +8718,7 @@ public:
 void
 nsDocument::AsyncRequestFullScreen(Element* aElement)
 {
+  printf("\nnsDocument::AsyncRequest\n");
   NS_ASSERTION(aElement,
     "Must pass non-null element to nsDocument::AsyncRequestFullScreen");
   if (!aElement) {
@@ -8736,6 +8752,7 @@ LogFullScreenDenied(bool aLogFailure, const char* aMessage, nsIDocument* aDoc)
 void
 nsDocument::ClearFullScreenStack()
 {
+  printf("\nnsDocument::ClearFullScreenStack\n");
   if (mFullScreenStack.IsEmpty()) {
     return;
   }
@@ -8753,20 +8770,25 @@ nsDocument::ClearFullScreenStack()
 bool
 nsDocument::FullScreenStackPush(Element* aElement)
 {
+  printf("\nnsDocument::FullScreenStackPush\n");
   NS_ASSERTION(aElement, "Must pass non-null to FullScreenStackPush()");
   Element* top = FullScreenStackTop();
   if (top == aElement || !aElement) {
+    printf("\ntop == aElement || !aElement\n");
     return false;
   }
   if (top) {
     // We're pushing a new element onto the full-screen stack, so we must
     // remove the ancestor and full-screen styles from the former top of the
     // stack.
+    printf("\ntop exists, calling nsEventStateManager::SetFullScreenState(top, false)\n");
     nsEventStateManager::SetFullScreenState(top, false);
   }
+  printf("\ncalling nsEventStateManager::SetFullScreenState(aElement, true)\n");
   nsEventStateManager::SetFullScreenState(aElement, true);
   mFullScreenStack.AppendElement(do_GetWeakReference(aElement));
   NS_ASSERTION(GetFullScreenElement() == aElement, "Should match");
+  printf("\nreturning from nsDocument::FullScreenStackPush\n");
   return true;
 }
 
@@ -8823,6 +8845,8 @@ nsDocument::FullScreenStackTop()
 void
 nsDocument::RequestFullScreen(Element* aElement, bool aWasCallerChrome)
 {
+  printf("\nnsDocument::RequestFullScreen\n");
+  printf("\nsFullScreenDoc? %d\n", sFullScreenDoc ? 1 : 0);
   NS_ASSERTION(aElement,
     "Must pass non-null element to nsDocument::RequestFullScreen");
   if (!aElement || aElement == GetFullScreenElement()) {
@@ -8863,11 +8887,23 @@ nsDocument::RequestFullScreen(Element* aElement, bool aWasCallerChrome)
   nsCOMPtr<nsIDocument> fullScreenDoc(do_QueryReferent(sFullScreenDoc));
   nsIDocument* commonAncestor = GetCommonAncestor(fullScreenDoc, this);
   if (fullScreenDoc && !commonAncestor) {
+    printf("\nfullScreenDoc && !commonAncestor\n");
     // A document which doesn't have a common ancestor is full-screen, this
     // must be in a separate browser window. Fully exit full-screen, to move
     // the other browser window/doctree out of full-screen.
     nsIDocument::ExitFullScreen(false);
   }
+
+  //If a document is already in fullscreen, unlock the mouse before setting a
+  //new document to fullscreen
+  if (fullScreenDoc) {
+    printf("\nfullScreenDoc TRUE\n");
+    MaybeUnlockMouse(fullScreenDoc);
+  }
+  else {
+    printf("\nfullScreenDoc FALSE\n");
+  }
+
 
   // Remember the root document, so that if a full-screen document is hidden
   // we can reset full-screen state in the remaining visible full-screen documents.
@@ -8888,11 +8924,14 @@ nsDocument::RequestFullScreen(Element* aElement, bool aWasCallerChrome)
   nsIDocument* child = this;
   nsIDocument* parent;
   while ((parent = child->GetParentDocument())) {
+    printf("\nwhile ((parent = child->GetParentDocument()))\n");
     Element* element = parent->FindContentForSubDocument(child)->AsElement();
     if (static_cast<nsDocument*>(parent)->FullScreenStackPush(element)) {
+      printf("\nif (static_cast<nsDocument*>(parent)->FullScreenStackPush(element))\n");
       changed.AppendElement(parent);
       child = parent;
     } else {
+      printf("\nelse\n");
       NS_ASSERTION(!commonAncestor || child == commonAncestor,
                    "Should finish loop at common ancestor (or null)");
       // We've reached either the root, or a point in the doctree where the
@@ -8907,8 +8946,10 @@ nsDocument::RequestFullScreen(Element* aElement, bool aWasCallerChrome)
   // order so that the events for the root document arrives before the leaf
   // document, as required by the spec.
   for (PRUint32 i = 0; i < changed.Length(); ++i) {
+    printf("\nDispatchingFullScreenChange...\n");
     DispatchFullScreenChange(changed[changed.Length() - i - 1]);
   }
+
 
   // Remember this is the requesting full-screen document.
   sFullScreenDoc = do_GetWeakReference(static_cast<nsIDocument*>(this));

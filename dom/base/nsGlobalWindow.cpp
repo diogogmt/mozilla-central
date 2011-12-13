@@ -4378,6 +4378,8 @@ nsGlobalWindow::GetNearestWidget()
 NS_IMETHODIMP
 nsGlobalWindow::SetFullScreen(bool aFullScreen)
 {
+  printf("\nnsGlobalWindow::SetFullScreen\n");
+  printf("setting fullscreen to: %d\n", aFullScreen ? 1 : 0);
   if (!mFullScreen && aFullScreen) {
     nsIWidget* widget = GetNearestWidget();
     if (widget) {
