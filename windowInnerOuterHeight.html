@@ -1,0 +1,42 @@
+<html>
+<head></head>
+ 
+  <style>
+    html, body {
+      margin: 0px;
+      padding: 0px;
+    }
+    #div {
+      width: 100%;
+      height: 100%;
+      background-color: #e5e5e5;
+    }
+  </style> 
+
+<body>
+
+
+  <a href="#" id="linkFS">Set div fullscreen</a>
+	<div id="div">
+  </div>
+
+	<br />
+
+	<script>
+		var div = document.getElementById("div");
+	
+    div.addEventListener('mousemove', function (e) {
+      div.innerHTML = '<br />window.outerWidth:<b> ' + window.outerWidth + ' </b>window.outerHeight:<b> ' + window.outerHeight +
+        '</b><br />window.innerWidth: <b>' + window.innerWidth + '</b> window.innerHeight: <b>' + window.innerHeight + '</b>';
+    }, false);
+
+		
+		document.getElementById("linkFS").onclick = function (e) {
+			div.mozRequestFullScreen();
+		}
+
+	</script>
+
+</body>
+
+</html>
