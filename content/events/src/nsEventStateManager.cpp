@@ -3852,9 +3852,8 @@ nsEventStateManager::DispatchMouseEvent(nsGUIEvent* aEvent, PRUint32 aMessage,
   nsIFrame* targetFrame = nsnull;
   if (aTargetContent) {
     nsESMEventCB callback(aTargetContent);
-//XXXhumph: not sure if this is right, an experiment at the moment to retarget the element...
-    nsEventDispatcher::Dispatch(sPointerLockedElement ? sPointerLockedElement.get() : aTargetContent,
-                                mPresContext, &event, nsnull, &status, &callback);
+    nsEventDispatcher::Dispatch(aTargetContent, mPresContext, &event,
+                                nsnull, &status, &callback);
 
     // Although the primary frame was checked in event callback, 
     // it may not be the same object after event dispatching and handling.
@@ -4113,9 +4112,16 @@ nsEventStateManager::SetPointerLock(nsIWidget* aWidget,
     mPreLockPoint = sLastRefPoint + sLastScreenOffset;
     sLastRefPoint = GetMouseCoords();
     aWidget->SynthesizeNativeMouseMove(sLastRefPoint);
+
+    // Retarget all events to this element.
+    nsIPresShell::SetCapturingContent(aElement, CAPTURE_RETARGETTOELEMENT |
+                                                CAPTURE_IGNOREALLOWED);
   } else {
     // Unlocking, so return pointer to the original position
     aWidget->SynthesizeNativeMouseMove(mPreLockPoint);
+
+    // Don't retarget events to this element any more.
+    nsIPresShell::SetCapturingContent(nsnull, 0);
   }
 }
 
