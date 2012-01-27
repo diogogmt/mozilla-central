@@ -1,0 +1,113 @@
+<html>
+
+  <head>
+    <style>
+
+      #canvas {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: #e5e5e5;
+        color: black;
+      }
+
+      #child1 {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0px;
+        left: 0px;
+        background-color: red;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+  <a href="#" id="lockMouse">Lock the mouse</a>
+
+  <div id="canvas">
+    <div id="child1">Child 1</div>
+  </div>
+  <br />
+
+
+  <script>
+    var canvas = document.getElementById("canvas");
+    var lockMouse = document.getElementById("lockMouse");
+    var pointer = navigator.mozPointer;
+    var child1 = document.getElementById("child1");
+
+
+    child1.addEventListener("click", function (e) {
+      console.log("child1 click fired");
+    }, false);
+
+    child1.addEventListener("mousemove", function (e) {
+      console.log("child1 mousemove fired");
+    }, false);
+
+    child1.addEventListener("mousedown", function (e) {
+      console.log("child1 mousedown fired");
+    }, false);
+
+    child1.addEventListener("mouseup", function (e) {
+      console.log("child1 mouseup fired");
+    }, false);
+
+    child1.addEventListener("wheel", function (e) {
+      console.log("child1 wheel fired");
+    }, false);
+
+
+    canvas.addEventListener("click", function (e) {
+      console.log("canvas click fired");
+    }, false);
+
+    canvas.addEventListener("mousemove", function (e) {
+      console.log("canvas mousemove fired");
+    }, false);
+
+    canvas.addEventListener("mousedown", function (e) {
+      console.log("canvas mousedown fired");
+    }, false);
+
+    canvas.addEventListener("mouseup", function (e) {
+      console.log("canvas mouseup fired");
+    }, false);
+
+    canvas.addEventListener("wheel", function (e) {
+      console.log("canvas wheel fired");
+    }, false);
+
+    var cal = function () {
+      console.log("callback fired");
+    };
+
+    var err = function () {
+      console.log("error callback fired");
+    };
+
+    canvas.addEventListener("mouselocklost", function () {
+      console.log("mouselocklost fired");
+    }, false);
+
+
+    lockMouse.addEventListener("click", function (e) {
+      console.log("lockMouse click fired");
+      canvas.mozRequestFullScreen();
+    }, false);
+
+
+    document.addEventListener("mozfullscreenchange", function () {
+      console.log("mozfullscreenchange fired");
+      pointer.lock(canvas, cal, err);
+    }, false);
+
+    
+  </script>
+
+  </body>
+
+</html>
