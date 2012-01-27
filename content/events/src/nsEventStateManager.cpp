@@ -3039,6 +3039,12 @@ nsEventStateManager::PostHandleEvent(nsPresContext* aPresContext,
                                      nsIFrame* aTargetFrame,
                                      nsEventStatus* aStatus)
 {
+  if (sPointerLockedElement && !nsIPresShell::gCaptureInfo.mContent) {
+    // Retarget all events to this element.
+    nsIPresShell::SetCapturingContent(sPointerLockedElement, CAPTURE_RETARGETTOELEMENT |
+                                                             CAPTURE_IGNOREALLOWED);
+  }
+
   NS_ENSURE_ARG(aPresContext);
   NS_ENSURE_ARG_POINTER(aStatus);
 
