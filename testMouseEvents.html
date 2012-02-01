@@ -60,7 +60,14 @@
       console.log("child1 wheel fired");
     }, false);
 
+    child1.addEventListener("DOMMouseScroll", function (e) {
+      console.log("child1 scroll fired");
+    }, false);
 
+
+    canvas.addEventListener("DOMMouseScroll", function (e) {
+      console.log("canvas scroll fired");
+    }, false);
     canvas.addEventListener("click", function (e) {
       console.log("canvas click fired");
     }, false);
