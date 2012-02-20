@@ -778,6 +778,9 @@ public:
    */
   static void ExitFullScreen(bool aRunAsync);
 
+  // Needs documentation
+  virtual void RequestPointerLock(Element* aElement) = 0;
+
   //----------------------------------------------------------------------
 
   // Document notification API's
