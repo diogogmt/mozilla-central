@@ -98,16 +98,4 @@ interface nsIDOMHTMLElement : nsIDOMElement
   readonly attribute long             offsetLeft;
   readonly attribute long             offsetWidth;
   readonly attribute long             offsetHeight;
-
-
-  // Mozilla extensions
-  /**
-   * Requests that this element be made the full-screen element, as per the DOM
-   * full-screen api.
-   *
-   * @see <https://wiki.mozilla.org/index.php?title=Gecko:FullScreenAPI>
-   */
-  void mozRequestFullScreen();  
-
-  void mozRequestPointerLock();
 };
