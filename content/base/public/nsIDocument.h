@@ -777,6 +777,12 @@ public:
    */
   static void ExitFullScreen(bool aRunAsync);
 
+
+  virtual void RequestPointerLock(Element* aElement) = 0;
+
+  static void UnLockPointer();
+
+
   //----------------------------------------------------------------------
 
   // Document notification API's

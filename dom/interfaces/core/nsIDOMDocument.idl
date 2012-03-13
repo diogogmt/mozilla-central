@@ -397,6 +397,21 @@ interface nsIDOMDocument : nsIDOMNode
   readonly attribute boolean mozFullScreenEnabled;
 
   /**
+   * The element to which the mouse pointer is locked, if any, as per the
+   * DOM pointer lock api.
+   *
+   * @see <http://dvcs.w3.org/hg/pointerlock/raw-file/default/index.html>
+   */
+  readonly attribute nsIDOMElement mozPointerLockElement;
+
+  /**
+   * Exit pointer is lock if locked, as per the DOM pointer lock api.
+   *
+   * @see <http://dvcs.w3.org/hg/pointerlock/raw-file/default/index.html>
+   */
+  void mozExitPointerLock();
+
+  /**
    * Inline event handler for readystatechange events.
    */
   [implicit_jscontext] attribute jsval onreadystatechange;
