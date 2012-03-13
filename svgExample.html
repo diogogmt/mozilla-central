@@ -1,0 +1,28 @@
+<html>
+<body>
+
+<a href="" id="linkFullScreen">Set FullScreen</a>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg-elem">
+   <circle cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="red" />
+</svg> 
+ 
+<script>
+      var elem = document.getElementById("svg-elem")
+        , linkFullScreen = document.getElementById("linkFullScreen");
+
+      linkFullScreen.addEventListener("click", function (e) {
+        console.log("linkFullScreen click");
+        elem.mozRequestFullScreen();
+      }, false);
+
+      document.addEventListener("mozfullscreenchange", function (e) {
+        console.log("mozfullscreenchange");
+        if (document.mozFullScreenElement === elem) {
+          console.log("mozFullScreenElement === elem");
+        } else {
+          console.log("exit fullscren");
+        }
+      }, false);
+    </script>
+</body>
+</html>
